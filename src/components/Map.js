@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { BsHouse } from "react-icons/bs";
 import { GoogleMap, useLoadScript, Marker, InfoWindow, MarkerF , Polyline} from "@react-google-maps/api";
+import houseIcon from '../assets/house.png'; // adjust the path accordingly
+import homeIcon from '../assets/home.png';   // adjust the path accordingly
 
 
 import { REACT_APP_GOOGLE_MAPS_KEY } from "../constants/constants";
@@ -85,6 +88,7 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
   };
 
   const center = centerCoordinate || coordinatesList[0];
+  const [hoveredMarker, setHoveredMarker] = useState(null);
 
   const onMapLoad = (map) => {
     // Fit the map bounds to include all markers and directions
@@ -102,10 +106,15 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
         bounds.extend(path);
       });
     }
-  
+    if (hoveredMarker) {
+      bounds.extend(new window.google.maps.LatLng(hoveredMarker.lat, hoveredMarker.lng));
+    }
     map.fitBounds(bounds);
   };
   
+  const handleMarkerHover = (marker) => {
+    setHoveredMarker(marker);
+  };
   
 
   const handleMarkerClick = (marker) => {
@@ -114,6 +123,22 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
 
 
 
+  // const renderMarkers = () => {
+  //   console.log("Rendering markers:", coordinatesList);
+  //   return coordinatesList.map((coordinate, index) => (
+  //     <MarkerF
+  //       key={index}
+  //       position={coordinate}
+  //       onClick={() => handleMarkerClick(coordinate)}
+  //       icon={{
+  //         url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+  //         scaledSize: new window.google.maps.Size(30, 30),
+  //       }}
+  //       zIndex={1000} // Adjust the z-index as needed
+        
+  //     />
+  //   ));
+  // };
   const renderMarkers = () => {
     console.log("Rendering markers:", coordinatesList);
     return coordinatesList.map((coordinate, index) => (
@@ -122,14 +147,14 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
         position={coordinate}
         onClick={() => handleMarkerClick(coordinate)}
         icon={{
-          url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+          url: homeIcon,
           scaledSize: new window.google.maps.Size(30, 30),
         }}
-        zIndex={1000} // Adjust the z-index as needed
-        
+        zIndex={index === 0 ? 2000 : 1000} // Adjust the z-index as needed
       />
     ));
   };
+  
   
   
   
