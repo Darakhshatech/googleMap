@@ -6,6 +6,8 @@ import homeIcon from '../assets/home.png';   // adjust the path accordingly
 
 
 import { REACT_APP_GOOGLE_MAPS_KEY } from "../constants/constants";
+
+
 const MapComponent = ({ coordinatesList, centerCoordinate }) => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: REACT_APP_GOOGLE_MAPS_KEY,
@@ -15,20 +17,16 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
     strokeOpacity: 0.7,
     strokeWeight: 4,
   };
-  
+
   const [polylines, setPolylines] = useState([]);
-
-
   const [directions, setDirections] = useState(null);
+  const [selectedMarkers, setSelectedMarkers] = useState([]);
 
-
-  const [selectedMarker, setSelectedMarker] = useState(null);
-  const [distance, setDistance] = useState(null);
   const calculateDirections = () => {
     if (isLoaded && centerCoordinate && coordinatesList && coordinatesList.length > 0) {
       const directionsService = new window.google.maps.DirectionsService();
       const newPolylines = [];
-  
+
       coordinatesList.forEach((destination) => {
         directionsService.route(
           {
@@ -44,7 +42,7 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
                 strokeOpacity: 0.7,
                 strokeWeight: 4,
               });
-  
+
               newPolylines.push(polyline);
               setPolylines([...newPolylines]); // Update the state
             } else {
@@ -55,12 +53,10 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
       });
     }
   };
-  
 
-  
   useEffect(() => {
-    console.log(coordinatesList , centerCoordinate);
     calculateDirections();
+
     if (isLoaded && centerCoordinate && coordinatesList && coordinatesList.length > 0) {
       const distanceMatrixService = new window.google.maps.DistanceMatrixService();
       distanceMatrixService.getDistanceMatrix(
@@ -71,12 +67,16 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
         },
         (response, status) => {
           if (status === "OK") {
-            // console.log(response)
             const meters = response.rows[0].elements.map((element) => element.distance.value);
-
             const kilometers = meters.map((meter) => (meter / 1000).toFixed(2));
-            setDistance(kilometers);
-            console.log(kilometers)
+
+            // Create an array of selected markers with distances
+            const markersWithDistances = coordinatesList.map((coordinate, index) => ({
+              coordinate,
+              distance: kilometers[index],
+            }));
+
+            setSelectedMarkers(markersWithDistances);
           }
         }
       );
@@ -88,77 +88,43 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
   };
 
   const center = centerCoordinate || coordinatesList[0];
-  const [hoveredMarker, setHoveredMarker] = useState(null);
 
   const onMapLoad = (map) => {
-    // Fit the map bounds to include all markers and directions
     const bounds = new window.google.maps.LatLngBounds();
-  
-    // Extend bounds for markers
+
     coordinatesList.forEach((coordinate) => {
       bounds.extend(new window.google.maps.LatLng(coordinate.lat, coordinate.lng));
     });
-  
-    // Extend bounds for directions
+
     if (directions) {
       const overviewPath = directions.routes[0].overview_path;
       overviewPath.forEach((path) => {
         bounds.extend(path);
       });
     }
-    if (hoveredMarker) {
-      bounds.extend(new window.google.maps.LatLng(hoveredMarker.lat, hoveredMarker.lng));
-    }
+
     map.fitBounds(bounds);
   };
-  
-  const handleMarkerHover = (marker) => {
-    setHoveredMarker(marker);
-  };
-  
 
-  const handleMarkerClick = (marker) => {
-    setSelectedMarker(marker);
-  };
-
-
-
-  // const renderMarkers = () => {
-  //   console.log("Rendering markers:", coordinatesList);
-  //   return coordinatesList.map((coordinate, index) => (
-  //     <MarkerF
-  //       key={index}
-  //       position={coordinate}
-  //       onClick={() => handleMarkerClick(coordinate)}
-  //       icon={{
-  //         url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-  //         scaledSize: new window.google.maps.Size(30, 30),
-  //       }}
-  //       zIndex={1000} // Adjust the z-index as needed
-        
-  //     />
-  //   ));
-  // };
   const renderMarkers = () => {
-    console.log("Rendering markers:", coordinatesList);
-    return coordinatesList.map((coordinate, index) => (
+    return selectedMarkers.map((selectedMarker, index) => (
       <MarkerF
         key={index}
-        position={coordinate}
-        onClick={() => handleMarkerClick(coordinate)}
+        position={selectedMarker.coordinate}
         icon={{
           url: homeIcon,
           scaledSize: new window.google.maps.Size(30, 30),
         }}
-        zIndex={index === 0 ? 2000 : 1000} // Adjust the z-index as needed
-      />
+        zIndex={index === 0 ? 2000 : 1000}
+      >
+        <InfoWindow position={selectedMarker.coordinate}>
+          <div>
+            <p>{`Distance from center: ${selectedMarker.distance} km`}</p>
+          </div>
+        </InfoWindow>
+      </MarkerF>
     ));
   };
-  
-  
-  
-  
-  
 
   if (loadError) {
     console.error("Map cannot be loaded:", loadError);
@@ -169,30 +135,19 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
 
   return (
     <div style={{ marginTop: "50px" }}>
-<GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={13} onLoad={onMapLoad}>
-  {renderMarkers()}
+      <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={13} onLoad={onMapLoad}>
+        {renderMarkers()}
 
-  {polylines.map((polyline, index) => (
-    <Polyline key={index} path={polyline.getPath().getArray()} options={polylineOptions} />
-  ))}
-
-  {selectedMarker && (
-    <InfoWindow
-      position={selectedMarker}
-      onCloseClick={() => setSelectedMarker(null)}
-    >
-      <div>
-        <p>{`Distance from center: ${distance && distance[coordinatesList.indexOf(selectedMarker)]} km`}</p>
-      </div>
-    </InfoWindow>
-  )}
-</GoogleMap>
-
-
-
+        {polylines.map((polyline, index) => (
+          <Polyline key={index} path={polyline.getPath().getArray()} options={polylineOptions} />
+        ))}
+      </GoogleMap>
     </div>
   );
 };
 
 export default MapComponent;
+
+
+
 
