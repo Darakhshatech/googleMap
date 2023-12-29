@@ -3,8 +3,10 @@ import MapComponent from "./components/Map";
 
 function App() {
   const [listCoordinates, setListCoordinates] = useState([
-    { lat: 34.0522, lng: -118.2437 }, // Example coordinate 2 (Los Angeles, CA)
-    { lat: 41.8781, lng: -87.6298 },  // Example coordinate 3 (Chicago, IL)
+    { name :"sumil" ,lat: 28.69891963688101, lng: 77.15742429280348 }, // 
+    { name: "rohit" ,lat: 28.70012883634028, lng: 77.16232103412547 }, 
+    { name: "rakesh" ,lat: 28.80012883634028, lng: 77.17232103412547 },
+    { name: "jojo" ,lat: 28.50012883634028, lng: 77.1232103412547 }, // 
   ]);
 
   const [centerCoordinate, setCenterCoordinate] = useState(null);

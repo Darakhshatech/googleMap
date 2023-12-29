@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BsHouse } from "react-icons/bs";
-import { GoogleMap, useLoadScript, Marker, InfoWindow, MarkerF , Polyline} from "@react-google-maps/api";
-import houseIcon from '../assets/house.png'; // adjust the path accordingly
+import { GoogleMap, useLoadScript,  InfoWindow, MarkerF , Polyline} from "@react-google-maps/api";
+
 import homeIcon from '../assets/home.png';   // adjust the path accordingly
 
 
@@ -117,7 +117,8 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
         }}
         zIndex={index === 0 ? 2000 : 1000}
       >
-        <InfoWindow position={selectedMarker.coordinate}>
+        <InfoWindow    position={selectedMarker.coordinate}>
+          
           <div>
             <p>{`Distance from center: ${selectedMarker.distance} km`}</p>
           </div>
@@ -125,6 +126,8 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
       </MarkerF>
     ));
   };
+
+
 
   if (loadError) {
     console.error("Map cannot be loaded:", loadError);
