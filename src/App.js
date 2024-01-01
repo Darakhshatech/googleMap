@@ -4,7 +4,7 @@ import MapComponent from "./components/Map";
 
 function App() {
   const [listCoordinates, setListCoordinates] = useState([
-    // { name :"sumil" ,lat: 28.70068083198597, lng: 77.16055157429982 }, //
+    // { name :"sumil" ,lat: 28.70068083198597, lng: 77.16055157429982 },
     { name: "rohit" ,lat: 28.7006327063655, lng: 77.15894548287578}, //28.7006327063655, 77.15894548287578
     { name: "rakesh" ,lat: 28.700382688610425, lng: 77.1583621380241 },//28.700382688610425, 77.1583621380241
     { name: "jojo" ,lat: 28.700989109801004, lng: 77.15827660875983 }, // 28.700989109801004, 77.15827660875983
