@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { BsHouse } from "react-icons/bs";
-import { GoogleMap, useLoadScript, InfoWindow, MarkerF, Polyline } from "@react-google-maps/api";
 
-import homeIcon from '../assets/home.png';   // adjust the path accordingly
+import { GoogleMap, useLoadScript, InfoWindow, MarkerF, Polyline } from "@react-google-maps/api";
+import homeIcon from '../assets/home.png'
+import humanIcon from '../assets/user.png';   // adjust the path accordingly
 
 
 import { REACT_APP_GOOGLE_MAPS_KEY } from "../constants/constants";
@@ -22,12 +22,70 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
   const [directions, setDirections] = useState(null);
   const [selectedMarkers, setSelectedMarkers] = useState([]);
 
+  // const calculateDirections = () => {
+  //   if (isLoaded && centerCoordinate && coordinatesList && coordinatesList.length > 0) {
+  //     const directionsService = new window.google.maps.DirectionsService();
+  //     const newPolylines = [];
+
+  //     coordinatesList.forEach((destination) => {
+  //       directionsService.route(
+  //         {
+  //           origin: centerCoordinate,
+  //           destination: destination,
+  //           travelMode: "DRIVING",
+  //         },
+  //         (response, status) => {
+  //           if (status === "OK") {
+  //             const polyline = new window.google.maps.Polyline({
+  //               path: response.routes[0].overview_path,
+  //               strokeColor: "#0000FF",
+  //               strokeOpacity: 0.7,
+  //               strokeWeight: 4,
+  //             });
+
+  //             newPolylines.push(polyline);
+  //             setPolylines([...newPolylines]); // Update the state
+  //           } else {
+  //             console.error("Error calculating directions:", status);
+  //           }
+  //         }
+  //       );
+  //     });
+  //   }
+  // };
   const calculateDirections = () => {
     if (isLoaded && centerCoordinate && coordinatesList && coordinatesList.length > 0) {
       const directionsService = new window.google.maps.DirectionsService();
       const newPolylines = [];
-
-      coordinatesList.forEach((destination) => {
+  
+      const updatePolylines = (color, response) => {
+        const polyline = new window.google.maps.Polyline({
+          path: response.routes[0].overview_path,
+          strokeColor: color,
+          strokeOpacity: 0.7,
+          strokeWeight: 4,
+        });
+  
+        newPolylines.push(polyline);
+  
+        if (newPolylines.length === coordinatesList.length) {
+          setPolylines([...newPolylines]); // Update the state after all polylines are created
+        }
+      };
+  
+      coordinatesList.forEach((destination, index) => {
+        let color = '';
+  
+        // Assign colors based on index ranges
+        if (index >= 0 && index < 2) {
+          color = 'red';
+        } else if (index >= 2 && index < 4) {
+          color = 'blue';
+        } else if (index >= 4 && index < 6) {
+          color = 'green';
+        }
+        // Add more conditions as needed
+  
         directionsService.route(
           {
             origin: centerCoordinate,
@@ -36,15 +94,7 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
           },
           (response, status) => {
             if (status === "OK") {
-              const polyline = new window.google.maps.Polyline({
-                path: response.routes[0].overview_path,
-                strokeColor: "#0000FF",
-                strokeOpacity: 0.7,
-                strokeWeight: 4,
-              });
-
-              newPolylines.push(polyline);
-              setPolylines([...newPolylines]); // Update the state
+              updatePolylines(color, response);
             } else {
               console.error("Error calculating directions:", status);
             }
@@ -53,6 +103,8 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
       });
     }
   };
+  
+  
 
   useEffect(() => {
     calculateDirections();
@@ -112,17 +164,17 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
         key={index}
         position={selectedMarker.coordinate}
         icon={{
-          url: homeIcon,
+          url: index === 3? homeIcon : humanIcon,
           scaledSize: new window.google.maps.Size(30, 30),
         }}
         zIndex={index === 0 ? 2000 : 1000}
       >
         <InfoWindow position={selectedMarker.coordinate}>
-          <div className="max-w-xs p-4 bg-gray-200 rounded-lg shadow-md">
+          <div className="max-w-xxxs p-1 bg-gray-200 rounded-lg shadow-md">
             <p className="text-lg font-bold mb-2"> {selectedMarker.distance == 0 ? "Center" : selectedMarker.coordinate.name}</p>
-            <p className="text-gray-800">
+            {/* <p className="text-gray-800">
               {selectedMarker.distance == 0 ? "Center distance 0 km" : `Distance from center: ${selectedMarker.distance} km`}
-            </p>
+            </p> */}
           </div>
         </InfoWindow>
 
