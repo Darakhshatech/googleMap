@@ -156,8 +156,9 @@ const MapComponent = ({ coordinatesList, centerCoordinate }) => {
         zIndex={index === 0 ? 2000 : 1000}
       >
         <InfoWindow position={selectedMarker.coordinate}>
-          <div className="max-w-xxxs p-1 bg-gray-200 rounded-lg shadow-md">
-            <p className="text-lg font-bold mb-2"> {selectedMarker.distance == 0 ? "Center" : selectedMarker.coordinate.name}</p>
+          <div >
+              <img src={selectedMarker.coordinate.photo}   className="img-fluid max-w-5 max-h-5" />
+            <p > {selectedMarker.distance == 0 ? "Center" : selectedMarker.coordinate.name}</p>
             {/* <p className="text-gray-800">
               {selectedMarker.distance == 0 ? "Center distance 0 km" : `Distance from center: ${selectedMarker.distance} km`}
             </p> */}
